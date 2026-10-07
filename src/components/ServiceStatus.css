@@ -1,0 +1,75 @@
+.side-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.service-status,
+.db-status {
+  padding: 0;
+}
+
+.status {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 18px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.status-item strong {
+  font-size: 14px;
+}
+
+.status-meta {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.thresholds {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 18px 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.threshold-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.healthy-dot {
+  background: var(--success);
+}
+
+.degraded-dot {
+  background: var(--warning);
+}
+
+.unavailable-dot {
+  background: var(--danger);
+}

@@ -1,0 +1,29 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.badge.accept {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge.reject {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.badge.challenge {
+  background: rgba(91, 192, 222, 0.12);
+  color: var(--info);
+}
+
+.badge.timeout {
+  background: var(--warning-soft);
+  color: var(--warning);
+}

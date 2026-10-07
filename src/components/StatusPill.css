@@ -1,0 +1,26 @@
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-pill.healthy {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.status-pill.degraded {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.status-pill.unavailable {
+  background: var(--danger-soft);
+  color: var(--danger);
+}

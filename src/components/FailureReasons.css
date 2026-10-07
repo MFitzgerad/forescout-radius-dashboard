@@ -1,0 +1,48 @@
+.failure-reasons {
+  padding: 0;
+}
+
+.list-wrap {
+  padding: 18px;
+}
+
+.reason-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.reason-row:last-child {
+  border-bottom: none;
+}
+
+.reason-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.bar {
+  width: 120px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  margin-right: 12px;
+}
+
+.bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--danger), #ff8f72);
+}
+
+.trend {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: auto;
+}
