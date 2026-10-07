@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forescout RADIUS Dashboard</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
+      --bg-tertiary: #eff3f7;
+      --panel: #ffffff;
+      --border: #d4dae3;
+      --border-light: #e8ecf1;
+      --text-primary: #1a2332;
+      --text-secondary: #5a6b7d;
+      --text-muted: #8794a6;
+      --primary: #2e5bba;
+      --primary-light: #4a75d9;
+      --primary-lighter: #6b91e8;
+      --primary-bg: #f0f5fb;
+      --success: #28a745;
+      --success-soft: rgba(40, 167, 69, 0.12);
+      --warning: #ffc107;
+      --warning-soft: rgba(255, 193, 7, 0.12);
+      --danger: #dc3545;
+      --danger-soft: rgba(220, 53, 69, 0.12);
+      --info: #17a2b8;
+      --info-soft: rgba(23, 162, 184, 0.12);
+      --shadow: 0 2px 8px rgba(26, 35, 50, 0.08);
+      --shadow-lg: 0 8px 16px rgba(26, 35, 50, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .app {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding: 16px 20px;
+      border: 1px solid var(--border-light);
+      background: var(--panel);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text-primary);
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chip, .select, .date-pill, .button {
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text-primary);
+      font-size: 12px;
+      padding: 8px 12px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .select {
+      min-width: 160px;
+      cursor: pointer;
+    }
+
+    .select:hover {
+      border-color: var(--primary);
+    }
+
+    .button {
+      background: var(--primary);
+      border: none;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: var(--primary-light);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border-light);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .filter-group label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(200px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .metric {
+      padding: 18px 18px 16px;
+      position: relative;
+    }
+
+    .metric .label {
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+
+    .metric .value-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin-top: 12px;
+    }
+
+    .metric .value {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .metric .delta {
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+
+    .delta.up { background: var(--success-soft); color: var(--success); }
+    .delta.down { background: var(--danger-soft); color: var(--danger); }
+    .delta.neutral { background: var(--primary-bg); color: var(--primary); }
+
+    .metric .spark {
+      margin-top: 12px;
+      height: 36px;
+      border-radius: 4px;
+      background: linear-gradient(180deg, var(--primary-bg), rgba(74, 117, 217, 0.05));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric .spark::before {
+      content: "";
+      position: absolute;
+      inset: 4px 4px 4px 4px;
+      background: linear-gradient(135deg, rgba(46, 91, 186, 0.4), rgba(74, 117, 217, 0));
+      clip-path: polygon(0% 70%, 12% 58%, 22% 63%, 34% 40%, 47% 56%, 60% 28%, 74% 45%, 90% 18%, 100% 15%, 100% 100%, 0% 100%);
+      border-radius: 3px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .panel-header h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: var(--text-primary);
+    }
+
+    .panel-header .muted {
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .recent-activity, .failure-reasons, .service-status, .db-status {
+      padding: 0;
+    }
+
+    .table-wrap {
+      padding: 0 18px 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border-light);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 700;
+      background: var(--bg-tertiary);
+    }
+
+    td .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    .accept { background: var(--success-soft); color: var(--success); }
+    .reject { background: var(--danger-soft); color: var(--danger); }
+    .challenge { background: var(--info-soft); color: var(--info); }
+    .timeout { background: var(--warning-soft); color: #ff9800; }
+
+    .list-wrap {
+      padding: 18px;
+    }
+
+    .reason-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .reason-row:last-child { border-bottom: none; }
+
+    .reason-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .bar {
+      width: 120px;
+      height: 7px;
+      border-radius: 2px;
+      background: var(--bg-tertiary);
+      overflow: hidden;
+      margin-right: 12px;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--danger), #ff6b6b);
+    }
+
+    .trend {
+      color: var(--text-muted);
+      font-size: 11px;
+      margin-left: auto;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .status {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 18px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: var(--bg-secondary);
+    }
+
+    .status-item strong {
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .healthy {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+    .degraded {
+      background: var(--warning-soft);
+      color: #ff9800;
+    }
+    .unavailable {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .status-meta {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .thresholds {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 0 18px 18px;
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .threshold-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 3px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-secondary);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .healthy-dot { background: var(--success); }
+    .degraded-dot { background: #ff9800; }
+    .unavailable-dot { background: var(--danger); }
+
+    .device-selector-group {
+      display: contents;
+    }
+
+    @media (max-width: 1200px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(200px, 1fr)); }
+      .main-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
+    }
+
+    @media (max-width: 768px) {
+      .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+      .toolbar { width: 100%; }
+      .button { width: 100%; }
+    }
+
+    @media (max-width: 640px) {
+      .filters { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">F</div>
+        Forescout RADIUS Dashboard
+      </div>
+
+      <div class="toolbar">
+        <span class="date-pill">Last 24 Hours</span>
+        <button class="button">Export</button>
+      </div>
+    </header>
+
+    <section class="filters">
+      <div class="filter-group">
+        <label>Device / Group (CT / EM)</label>
+        <select class="select">
+          <option>All Devices</option>
+          <optgroup label="Edge Devices (CT)">
+            <option>Access-Edge-01</option>
+            <option>Access-Edge-02</option>
+            <option>Switch-CORE-07</option>
+            <option>WiFi-Guest-AP</option>
+          </optgroup>
+          <optgroup label="Device Groups (EM)">
+            <option>Ottawa Office - All</option>
+            <option>EIN Office - All</option>
+            <option>PLN Office - All</option>
+            <option>YOW Office - All</option>
+            <option>IoT Devices - EIN</option>
+            <option>VPN Gateways</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Time Range</label>
+        <select class="select">
+          <option>Last 24 hours</option>
+          <option>Last 7 days</option>
+          <option>Last 30 days</option>
+          <option>Custom</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Auth Method</label>
+        <select class="select">
+          <option>All methods</option>
+          <option>EAP-TLS</option>
+          <option>PEAP-MSCHAPv2</option>
+          <option>MD5</option>
+          <option>Token</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Outcome</label>
+        <select class="select">
+          <option>All outcomes</option>
+          <option>Accept</option>
+          <option>Reject</option>
+          <option>Challenge</option>
+          <option>Timeout</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>&nbsp;</label>
+        <button class="button">Apply Filters</button>
+      </div>
+    </section>
+
+    <section class="summary-grid">
+      <div class="card metric">
+        <div class="label">Total Requests</div>
+        <div class="value-row">
+          <div class="value">142,860</div>
+          <div class="delta up">+8.4%</div>
+        </div>
+        <div class="spark"></div>
+      </div>
+
+      <div class="card metric">
+        <div class="label">Accepts</div>
+        <div class="value-row">
+          <div class="value">117,330</div>
+          <div class="delta up">+6.1%</div>
+        </div>
+        <div class="spark"></div>
+      </div>
+
+      <div class="card metric">
+        <div class="label">Rejects</div>
+        <div class="value-row">
+          <div class="value">18,640</div>
+          <div class="delta down">-3.8%</div>
+        </div>
+        <div class="spark"></div>
+      </div>
+
+      <div class="card metric">
+        <div class="label">Success Rate</div>
+        <div class="value-row">
+          <div class="value">82.1%</div>
+          <div class="delta neutral">Target 85%</div>
+        </div>
+        <div class="spark"></div>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <div class="card recent-activity">
+        <div class="panel-header">
+          <h3>Recent Activity</h3>
+          <span class="muted">Live feed</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Device / Group</th>
+                <th>Method</th>
+                <th>Client</th>
+                <th>Outcome</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>09:14:22</td>
+                <td>Access-Edge-01 (CT)</td>
+                <td>EAP-TLS</td>
+                <td>user-1024</td>
+                <td><span class="badge accept">Accept</span></td>
+              </tr>
+              <tr>
+                <td>09:13:48</td>
+                <td>VPN Gateways (EM)</td>
+                <td>PEAP-MSCHAPv2</td>
+                <td>user-7801</td>
+                <td><span class="badge reject">Reject</span></td>
+              </tr>
+              <tr>
+                <td>09:12:11</td>
+                <td>Switch-CORE-07 (CT)</td>
+                <td>MD5</td>
+                <td>bob.admin</td>
+                <td><span class="badge challenge">Challenge</span></td>
+              </tr>
+              <tr>
+                <td>09:10:56</td>
+                <td>WiFi-Guest-AP (CT)</td>
+                <td>Token</td>
+                <td>guest-442</td>
+                <td><span class="badge timeout">Timeout</span></td>
+              </tr>
+              <tr>
+                <td>09:08:33</td>
+                <td>Access-Edge-01 (CT)</td>
+                <td>EAP-TLS</td>
+                <td>user-1904</td>
+                <td><span class="badge accept">Accept</span></td>
+              </tr>
+              <tr>
+                <td>09:07:28</td>
+                <td>Ottawa Office - All (EM)</td>
+                <td>PEAP-MSCHAPv2</td>
+                <td>user-2130</td>
+                <td><span class="badge reject">Reject</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="side-stack">
+        <div class="card service-status">
+          <div class="panel-header">
+            <h3>RADIUS Service Status</h3>
+            <span class="muted">Health</span>
+          </div>
+
+          <div class="status">
+            <div class="status-item">
+              <div>
+                <strong>auth-service-01</strong>
+                <div class="status-meta">Listener: 1812/udp</div>
+              </div>
+              <span class="status-pill healthy">Healthy</span>
+            </div>
+
+            <div class="status-item">
+              <div>
+                <strong>auth-service-02</strong>
+                <div class="status-meta">Listener: 1812/udp</div>
+              </div>
+              <span class="status-pill healthy">Healthy</span>
+            </div>
+
+            <div class="status-item">
+              <div>
+                <strong>acct-service-01</strong>
+                <div class="status-meta">Listener: 1813/udp</div>
+              </div>
+              <span class="status-pill degraded">Degraded</span>
+            </div>
+
+            <div class="status-item">
+              <div>
+                <strong>auth-service-03</strong>
+                <div class="status-meta">Listener: 1812/udp</div>
+              </div>
+              <span class="status-pill unavailable">Unavailable</span>
+            </div>
+          </div>
+
+          <div class="thresholds">
+            <span class="threshold-box"><span class="dot healthy-dot"></span> Healthy &lt; 1%</span>
+            <span class="threshold-box"><span class="dot degraded-dot"></span> Degraded 1–5%</span>
+            <span class="threshold-box"><span class="dot unavailable-dot"></span> Unavail &gt; 5%</span>
+          </div>
+        </div>
+
+        <div class="card db-status">
+          <div class="panel-header">
+            <h3>radius_clients DB</h3>
+            <span class="muted">Database</span>
+          </div>
+
+          <div class="status">
+            <div class="status-item">
+              <div>
+                <strong>Reachability</strong>
+                <div class="status-meta">Primary: Synced</div>
+              </div>
+              <span class="status-pill healthy">Healthy</span>
+            </div>
+
+            <div class="status-item">
+              <div>
+                <strong>Query Latency</strong>
+                <div class="status-meta">p95: 132 ms</div>
+              </div>
+              <span class="status-pill degraded">Degraded</span>
+            </div>
+
+            <div class="status-item">
+              <div>
+                <strong>Record Sync</strong>
+                <div class="status-meta">Last: 08:42 UTC</div>
+              </div>
+              <span class="status-pill healthy">Healthy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="main-grid" style="margin-top: 0;">
+      <div class="card failure-reasons">
+        <div class="panel-header">
+          <h3>Top Failure Reasons</h3>
+          <span class="muted">Last 24h</span>
+        </div>
+
+        <div class="list-wrap">
+          <div class="reason-row">
+            <div class="reason-name">
+              <span>Shared secret mismatch</span>
+            </div>
+            <div style="display:flex; align-items:center;">
+              <div class="bar"><span style="width: 78%;"></span></div>
+              <strong style="color: var(--text-primary);">78%</strong>
+            </div>
+          </div>
+
+          <div class="reason-row">
+            <div class="reason-name">
+              <span>Certificate validation failed</span>
+            </div>
+            <div style="display:flex; align-items:center;">
+              <div class="bar"><span style="width: 62%;"></span></div>
+              <strong style="color: var(--text-primary);">62%</strong>
+            </div>
+          </div>
+
+          <div class="reason-row">
+            <div class="reason-name">
+              <span>Auth timeout</span>
+            </div>
+            <div style="display:flex; align-items:center;">
+              <div class="bar"><span style="width: 51%;"></span></div>
+              <strong style="color: var(--text-primary);">51%</strong>
+            </div>
+          </div>
+
+          <div class="reason-row">
+            <div class="reason-name">
+              <span>Rejected by policy</span>
+            </div>
+            <div style="display:flex; align-items:center;">
+              <div class="bar"><span style="width: 43%;"></span></div>
+              <strong style="color: var(--text-primary);">43%</strong>
+            </div>
+          </div>
+
+          <div class="reason-row">
+            <div class="reason-name">
+              <span>Unknown NAS / client</span>
+            </div>
+            <div style="display:flex; align-items:center;">
+              <div class="bar"><span style="width: 29%;"></span></div>
+              <strong style="color: var(--text-primary);">29%</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="panel-header">
+          <h3>Health Thresholds</h3>
+          <span class="muted">Definitions</span>
+        </div>
+
+        <div class="list-wrap">
+          <div class="reason-row">
+            <div class="reason-name">
+              <span class="dot healthy-dot"></span>
+              <span>Healthy</span>
+            </div>
+            <div class="trend">Error &lt; 1%, latency &lt; 200ms</div>
+          </div>
+
+          <div class="reason-row">
+            <div class="reason-name">
+              <span class="dot degraded-dot"></span>
+              <span>Degraded</span>
+            </div>
+            <div class="trend">Error 1–5% or one listener down</div>
+          </div>
+
+          <div class="reason-row">
+            <div class="reason-name">
+              <span class="dot unavailable-dot"></span>
+              <span>Unavailable</span>
+            </div>
+            <div class="trend">Error &gt; 5% or service unreachable</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
